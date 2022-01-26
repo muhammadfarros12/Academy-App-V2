@@ -15,7 +15,9 @@ import com.dicoding.academies.viewmodel.ViewModelFactory
  */
 class AcademyFragment : Fragment() {
 
-    private lateinit var fragmentAcademyBinding: FragmentAcademyBinding
+    private var _binding: FragmentAcademyBinding? = null
+
+    private val fragmentAcademyBinding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -23,7 +25,7 @@ class AcademyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        fragmentAcademyBinding = FragmentAcademyBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentAcademyBinding.inflate(layoutInflater, container, false)
         return fragmentAcademyBinding.root
     }
 
@@ -38,7 +40,13 @@ class AcademyFragment : Fragment() {
             val courses = viewModel.getCourses()
 
             val academyAdapter = AcademyAdapter()
-            academyAdapter.setCourses(courses)
+
+            fragmentAcademyBinding.progressBar.visibility = View.VISIBLE
+            viewModel.getCourses().observe(this, { courses ->
+                fragmentAcademyBinding.progressBar.visibility = View.GONE
+                academyAdapter.setCourses(courses)
+                academyAdapter.notifyDataSetChanged()
+            })
 
             with(fragmentAcademyBinding.rvAcademy) {
                 layoutManager = LinearLayoutManager(context)
@@ -47,5 +55,11 @@ class AcademyFragment : Fragment() {
             }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }
 

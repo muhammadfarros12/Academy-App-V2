@@ -18,14 +18,17 @@ import com.dicoding.academies.viewmodel.ViewModelFactory
  * A simple [Fragment] subclass.
  */
 class BookmarkFragment : Fragment(), BookmarkFragmentCallback {
-    lateinit var fragmentBookmarkBinding: FragmentBookmarkBinding
+
+    private var _binding: FragmentBookmarkBinding? = null
+
+    private val fragmentBookmarkBinding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        fragmentBookmarkBinding = FragmentBookmarkBinding.inflate(inflater, container, false)
+        _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         return fragmentBookmarkBinding.root
     }
 
@@ -40,7 +43,13 @@ class BookmarkFragment : Fragment(), BookmarkFragmentCallback {
             val courses = viewModel.getBookmarks()
 
             val adapter = BookmarkAdapter(this)
-            adapter.setCourses(courses)
+
+            fragmentBookmarkBinding.progressBar.visibility = View.VISIBLE
+            viewModel.getBookmarks().observe(this, { courses ->
+                fragmentBookmarkBinding.progressBar.visibility = View.GONE
+                adapter.setCourses(courses)
+                adapter.notifyDataSetChanged()
+            })
 
             with(fragmentBookmarkBinding.rvBookmark) {
                 layoutManager = LinearLayoutManager(context)
@@ -60,6 +69,11 @@ class BookmarkFragment : Fragment(), BookmarkFragmentCallback {
                 .setText("Segera daftar kelas ${course.title} di dicoding.com")
                 .startChooser()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 

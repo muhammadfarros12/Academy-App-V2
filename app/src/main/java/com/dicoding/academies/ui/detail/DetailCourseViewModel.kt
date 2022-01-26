@@ -1,5 +1,6 @@
 package com.dicoding.academies.ui.detail
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.dicoding.academies.data.CourseEntity
 import com.dicoding.academies.data.ModuleEntity
@@ -22,9 +23,9 @@ class DetailCourseViewModel(private val academyRepository: AcademyRepository) : 
         return course
     }*/
 
-    fun getCourse(): CourseEntity = academyRepository.getCourseWithModules(courseId)
+    fun getCourse(): LiveData<CourseEntity> = academyRepository.getCourseWithModules(courseId)
 
-    fun getModules(): List<ModuleEntity> = academyRepository.getAllModulesByCourse(courseId)
+    fun getModules(): LiveData<List<ModuleEntity>> = academyRepository.getAllModulesByCourse(courseId)
 }
 
 

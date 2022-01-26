@@ -22,13 +22,10 @@ import com.dicoding.academies.viewmodel.ViewModelFactory
 
 class ModuleListFragment : Fragment(), MyAdapterClickListener {
 
-    companion object {
-        val TAG: String = ModuleListFragment::class.java.simpleName
+    private var _binding: FragmentModuleListBinding? = null
 
-        fun newInstance(): ModuleListFragment = ModuleListFragment()
-    }
+    private val fragmentModuleListBinding get() = _binding!!
 
-    private lateinit var fragmentModuleListBinding: FragmentModuleListBinding
     private lateinit var viewModel: CourseReaderViewModel
     private lateinit var adapter: ModuleListAdapter
     private lateinit var courseReaderCallback: CourseReaderCallback
@@ -38,7 +35,7 @@ class ModuleListFragment : Fragment(), MyAdapterClickListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        fragmentModuleListBinding = FragmentModuleListBinding.inflate(inflater, container, false)
+        _binding = FragmentModuleListBinding.inflate(inflater, container, false)
         return fragmentModuleListBinding.root
     }
 
@@ -47,7 +44,13 @@ class ModuleListFragment : Fragment(), MyAdapterClickListener {
         val factory = ViewModelFactory.getInstance(requireActivity())
         viewModel = ViewModelProvider(requireActivity(), factory)[CourseReaderViewModel::class.java]
         adapter = ModuleListAdapter(this)
-        populateRecyclerView(viewModel.getModules())
+
+        fragmentModuleListBinding.progressBar.visibility = View.VISIBLE
+        viewModel.getModules().observe(this, { modules ->
+            fragmentModuleListBinding.progressBar.visibility = View.GONE
+            populateRecyclerView(modules)
+        })
+
     }
 
     override fun onAttach(context: Context) {
@@ -72,5 +75,12 @@ class ModuleListFragment : Fragment(), MyAdapterClickListener {
             rvModule.addItemDecoration(dividerItemDecoration)
         }
     }
+
+    companion object {
+        val TAG: String = ModuleListFragment::class.java.simpleName
+
+        fun newInstance(): ModuleListFragment = ModuleListFragment()
+    }
+
 }
 
